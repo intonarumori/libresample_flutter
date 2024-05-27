@@ -2,6 +2,7 @@ PODS:
   - Flutter (1.0.0)
   - libresample_flutter (0.0.1):
     - Flutter
+    - FlutterMacOS
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
@@ -14,9 +15,9 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/libresample_flutter/ios"
 
 SPEC CHECKSUMS:
-  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
-  libresample_flutter: 5cf0b7dcc10380d517040bf7140333bc6a2182c6
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  libresample_flutter: 0846b53803cc189444140915e2feaabb978b8c1d
 
-PODFILE CHECKSUM: 1b66dae606f75376c5f2135a8290850eeb09ae83
+PODFILE CHECKSUM: 075ddf6b19cdcced44581bd8fbdfb58404a78f8a
 
-COCOAPODS: 1.8.4
+COCOAPODS: 1.15.2

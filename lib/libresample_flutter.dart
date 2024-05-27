@@ -11,14 +11,14 @@ void* lrs_open(WORD highQuality,
                double minFactor,
                double maxFactor) {
  */
-typedef lrs_open_func = Pointer<Void> Function(Int32, Double, Double);
+typedef LrsOpenFunc = Pointer<Void> Function(Int32, Double, Double);
 typedef LrsOpen = Pointer<Void> Function(int, double, double);
 
 /*
 'C' Header definition
 void lrs_close(void *handle) {
  */
-typedef lrs_close_func = Void Function(Pointer<Void>);
+typedef LrsCloseFunc = Void Function(Pointer<Void>);
 typedef LrsClose = void Function(Pointer<Void>);
 
 /*
@@ -32,7 +32,7 @@ WORD lrs_process(void *handle,
                 float *outBuffer,
                 WORD outBufferLen) {
  */
-typedef lrs_process_func = Int32 Function(
+typedef LrsProcessFunc = Int32 Function(
   Pointer<Void>,
   Double,
   Pointer<Float>,
@@ -57,17 +57,17 @@ typedef LrsProcess = int Function(
 ///
 /// The public API is exposed by the [Resampler] class
 class LibresampleFlutter {
-  static LibresampleFlutter _instance;
+  static LibresampleFlutter? _instance;
 
-  LrsOpen _lrsOpen;
-  LrsClose _lrsClose;
-  LrsProcess _lrsProcess;
+  late LrsOpen _lrsOpen;
+  late LrsClose _lrsClose;
+  late LrsProcess _lrsProcess;
 
   factory LibresampleFlutter() {
     if (_instance == null) {
       _instance = LibresampleFlutter._();
     }
-    return _instance;
+    return _instance!;
   }
 
   LibresampleFlutter._() {
@@ -75,17 +75,11 @@ class LibresampleFlutter {
         ? DynamicLibrary.open("libnative_libresample.so")
         : DynamicLibrary.process();
 
-    _lrsOpen = nativeLrsLib
-        .lookup<NativeFunction<lrs_open_func>>('lrs_open')
-        .asFunction();
+    _lrsOpen = nativeLrsLib.lookup<NativeFunction<LrsOpenFunc>>('lrs_open').asFunction();
 
-    _lrsClose = nativeLrsLib
-        .lookup<NativeFunction<lrs_close_func>>('lrs_close')
-        .asFunction();
+    _lrsClose = nativeLrsLib.lookup<NativeFunction<LrsCloseFunc>>('lrs_close').asFunction();
 
-    _lrsProcess = nativeLrsLib
-        .lookup<NativeFunction<lrs_process_func>>('lrs_process')
-        .asFunction();
+    _lrsProcess = nativeLrsLib.lookup<NativeFunction<LrsProcessFunc>>('lrs_process').asFunction();
   }
 }
 
@@ -93,17 +87,17 @@ class LibresampleFlutter {
 ///
 /// See: https://github.com/minorninth/libresample
 class Resampler {
-  double _maxFactor;
+  late double _maxFactor;
 
-  Pointer<Void> _nativeInstance;
+  late Pointer<Void> _nativeInstance;
   var _closed = false;
 
-  Pointer<Int32> _inUsed = allocate<Int32>();
+  Pointer<Int32> _inUsed = malloc.allocate<Int32>(0);
 
-  Pointer<Float> _inBuf;
+  late Pointer<Float> _inBuf;
   var _inLen = 0;
 
-  Pointer<Float> _outBuf;
+  late Pointer<Float> _outBuf;
   var _outLen = 0;
 
   /// Creates a resampler.
@@ -131,20 +125,20 @@ class Resampler {
 
     if (_inLen == 0) {
       _inLen = inSize;
-      _inBuf = allocate<Float>(count: inSize);
+      _inBuf = malloc.allocate<Float>(sizeOf<Float>() * inSize);
     } else if (inSize > _inLen) {
-      free(_inBuf);
+      malloc.free(_inBuf);
       _inLen = inSize;
-      _inBuf = allocate<Float>(count: inSize);
+      _inBuf = malloc.allocate<Float>(sizeOf<Float>() * inSize);
     }
 
     if (_outLen == 0) {
       _outLen = outSize;
-      _outBuf = allocate<Float>(count: outSize);
+      _outBuf = malloc.allocate<Float>(sizeOf<Float>() * outSize);
     } else if (outSize > _outLen) {
-      free(_outBuf);
+      malloc.free(_outBuf);
       _outLen = outSize;
-      _outBuf = allocate<Float>(count: outSize);
+      _outBuf = malloc.allocate<Float>(sizeOf<Float>() * outSize);
     }
   }
 
@@ -175,7 +169,7 @@ class Resampler {
 
     if (processed <= 0) {
       print('hmmm $processed');
-      return null;
+      throw Exception('There was an issue processing the provided data');
     }
 
     var output = Float32List(processed);
@@ -207,15 +201,14 @@ class Resampler {
 class ResamplerStream {
   double _factor;
   Resampler _resampler;
-  Iterator<Float32List> inputStream;
+  late Iterator<Float32List> inputStream;
 
   /// Creates a wrapper around a resampler with an [Iterator] as input and an
   /// [Iterable] as output.
   ///
   /// See [Resampler] for an explanation of [_factor] and [highQuality].
-  ResamplerStream(this._factor, bool highQuality) {
-    _resampler = Resampler(highQuality, _factor, _factor);
-  }
+  ResamplerStream(this._factor, bool highQuality)
+      : _resampler = Resampler(highQuality, _factor, _factor);
 
   /// Sets the input of this audio block to the [Iterator]
   void setInputStream(Iterator<Float32List> stream) {
