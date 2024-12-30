@@ -4,4 +4,4 @@ add_library( native_libresample
 
              SHARED
 
-             ../ios/Classes/filterkit.c ../ios/Classes/lrsexport.c ../ios/Classes/resample.c ../ios/Classes/resamplesubs.c )
+             ../common/filterkit.c ../common/lrsexport.c ../common/resample.c ../common/resamplesubs.c )

@@ -3,6 +3,20 @@
 An implementation of [libresample](https://github.com/minorninth/libresample)
 as a Flutter plugin using `dart:ffi`.
 
+## Plugin implementation
+
+The shared C code from `common` is used by all targets:
+- For iOS and macOS they are symlinked in the respective folders
+- For Android Cmake links to them directly
+
+The plugin structure has been based on the following Flutter packages:
+- https://github.com/flutter-webrtc/flutter-webrtc
+- https://github.com/dint-dev/cryptography/blob/master/cryptography_flutter/macos/Classes/CryptographyFlutterPlugin.swift
+
+## TODO:
+
+- [ ] Clean up Gradle files for the example project
+
 ## Usage
 
 Firstly, import the package:
